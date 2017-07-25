@@ -1,6 +1,6 @@
 name: jaguar_hotreload
 description: Hot reloader for Dart
-version: 0.2.2
+version: 0.2.3
 authors:
 - Ravi Teja Gudapati <tejainece@gmail.com>
 - Kevin Segaud <segaud.kevin@gmail.com>
