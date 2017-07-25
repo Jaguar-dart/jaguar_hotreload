@@ -1,5 +1,11 @@
 # Changelog
 
-## 0.0.1
+## 0.2.2
 
-- Initial version, created by Stagehand
+- Added `addPackageDependencies` to register all dependent packages
+- Fixed uri path registration
+- Improved README
+
+## 0.2.1
+
+- First release version

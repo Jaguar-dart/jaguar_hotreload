@@ -110,7 +110,7 @@ class HotReloader {
   /// By default, [vmServiceUrl] uses `ws://localhost:8181/ws`
   HotReloader(
       {this.vmServiceUrl: _kVmServiceUrl,
-      this.debounceInterval: const Duration(seconds: 5)}) {
+      this.debounceInterval: const Duration(seconds: 1)}) {
     if (!isHotReloadable) throw notHotReloadable;
 
     _onChangeSub = onChange
@@ -119,7 +119,7 @@ class HotReloader {
       final sb = new StringBuffer();
       sb.write('Paths ');
       sb.write(events.map((WatchEvent event) => event.path).join(', '));
-      sb.write( ' changed!');
+      sb.write(' changed!');
       print(sb.toString());
       await reload();
     });
@@ -166,7 +166,7 @@ class HotReloader {
       hp._sub = hp.watcher.events.listen(_onChange.add, onError: (e) {
         stderr.writeln('Error listening to file changes at ${hp.path}: $e');
       });
-      print('Listening for file changes at ${hp.path}...');
+      print('Listening for file changes at ${hp.path}');
     });
   }
 
@@ -193,29 +193,92 @@ class HotReloader {
   }
 
   /// Registers a [path] to watch
+  ///
+  ///    main() async {
+  ///      final reloader = new HotReloader();
+  ///      reloader.addPath('lib/');
+  ///      await reloader.go();
+  ///
+  ///      // Your code goes here
+  ///    }
   void addPath(String path) => _registeredPaths.add(path);
 
   /// Registers [glob] to watch
+  ///
+  ///    main() async {
+  ///      final reloader = new HotReloader();
+  ///      reloader.addGlob(new Glob('jaguar_*/lib'));
+  ///      await reloader.go();
+  ///
+  ///      // Your code goes here
+  ///    }
   void addGlob(Glob glob) {
     final List<FileSystemEntity> entities = glob.listSync();
     entities.forEach(addFile);
   }
 
   /// Registers [FileSystemEntity] to watch
+  ///
+  ///    main() async {
+  ///      final reloader = new HotReloader();
+  ///      reloader.addFile(new File('pubspec.yaml'));
+  ///      await reloader.go();
+  ///
+  ///      // Your code goes here
+  ///    }
   void addFile(FileSystemEntity entity) => addPath(entity.path);
 
   /// Registers [Uri] to watch
-  void addUri(Uri uri) => addPath(uri.path);
+  ///
+  ///    main() async {
+  ///      final reloader = new HotReloader();
+  ///      reloader.addUri(new Uri(scheme: 'file', path: '/usr/lib/dart'));
+  ///      await reloader.go();
+  ///
+  ///      // Your code goes here
+  ///    }
+  void addUri(Uri uri) => addPath(uri.toFilePath());
 
   /// Registers package [uri] to watch
   ///
   /// If schema of the [uri] is not `'package'`, throws [notPackageUri]
   /// If package uri cannot be resolved, throws [packageNotFound]
+  ///
+  ///    main() async {
+  ///      final reloader = new HotReloader();
+  ///      await reloader.addPackagePath(new Uri(scheme: 'package', path: 'jaguar/'));
+  ///      await reloader.go();
+  ///
+  ///      // Your code goes here
+  ///    }
   Future addPackagePath(Uri uri) async {
     if (!uri.isScheme('package')) throw notPackageUri;
     final Uri packageUri = await Isolate.resolvePackageUri(uri);
     if (packageUri == null) throw packageNotFound;
-    addPath(uri.toFilePath());
+    addPath(packageUri.toFilePath());
+  }
+
+  /// Registers all packages the `.packages` file contains
+  ///
+  ///    main() async {
+  ///      final reloader = new HotReloader();
+  ///      await reloader.addPackageDependencies();
+  ///      await reloader.go();
+  ///
+  ///      // Your code goes here
+  ///    }
+  Future addPackageDependencies([String packageFilePath = '.packages']) async {
+    final file = new File(packageFilePath);
+    if (!await file.exists()) throw new Exception('Packages file not found!');
+    final List<String> lines = await file.readAsLines();
+    final List<String> packages = lines
+        .where((String line) => !line.startsWith('#'))
+        .map((String line) => line.split(':').first)
+        .toList();
+
+    for (String package in packages) {
+      await addPackagePath(new Uri(scheme: 'package', path: package + '/'));
+    }
   }
 
   /// Exception thrown when supplied package uri is not a package uri
@@ -294,7 +357,8 @@ More information can be found at: https://www.dartlang.org/dart-vm/tools/dart-vm
 }
 
 /// Debouncer to combine all [WatchEvent]s between [interval] into one event
-class _FoldedDebounce implements StreamTransformer<WatchEvent, List<WatchEvent>> {
+class _FoldedDebounce
+    implements StreamTransformer<WatchEvent, List<WatchEvent>> {
   final Duration interval;
 
   _FoldedDebounce(Duration duration) : interval = duration;
@@ -318,7 +382,7 @@ class _FoldedDebounce implements StreamTransformer<WatchEvent, List<WatchEvent>>
       values = <WatchEvent>[];
       return true;
     }).timeout(interval, onTimeout: (EventSink<List<WatchEvent>> sink) {
-      if(values.length == 0) return;
+      if (values.length == 0) return;
       next = new DateTime.now().add(this.interval);
       final tempValues = values;
       values = <WatchEvent>[];

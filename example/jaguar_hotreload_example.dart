@@ -9,6 +9,7 @@ int count = 0;
 main() async {
   final reloader = new HotReloader();
   reloader.addPath('.');
+  await reloader.addPackageDependencies();
   await reloader.go();
 
   new Timer.periodic(new Duration(seconds: 1), (_) {
