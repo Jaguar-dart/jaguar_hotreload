@@ -6,13 +6,12 @@ import 'package:jaguar_hotreload/jaguar_hotreload.dart';
 
 int count = 0;
 
-main() async {
-  final reloader = new HotReloader();
-  reloader.addPath('.');
+Future<void> main() async {
+  final reloader = HotReloader()..addPath('.');
   await reloader.addPackageDependencies();
   await reloader.go();
 
-  new Timer.periodic(new Duration(seconds: 1), (_) {
+  Timer.periodic(Duration(seconds: 1), (_) {
     print(count++);
   });
 }
