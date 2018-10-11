@@ -4,4 +4,7 @@
 /// Provides [HotReloader] to reload Dart applications
 library jaguar_hotreload;
 
+// just for the CodeDoc comment above
+import 'package:jaguar_hotreload/jaguar_hotreload.dart';
+
 export 'src/jaguar_hotreload_base.dart';
