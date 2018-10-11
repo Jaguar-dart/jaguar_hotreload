@@ -66,7 +66,7 @@ linter:
     - camel_case_types
     - cascade_invocations
     - constant_identifier_names
-#    - curly_braces_in_flow_control_structures # re-enable when https://github.com/google/built_value.dart/issues/490 is fixed
+    - curly_braces_in_flow_control_structures
     - directives_ordering
     - empty_catches
     - empty_constructor_bodies
@@ -116,7 +116,7 @@ linter:
     - slash_for_doc_comments
 #    - sort_constructors_first
 #    - sort_unnamed_constructors_first
-#    - super_goes_last # (zoechi) this should be covered by the analyzer already in Dart 2
+#    - super_goes_last # this should be covered by the analyzer already in Dart 2
     - type_annotate_public_apis
     - type_init_formals
     - unawaited_futures
