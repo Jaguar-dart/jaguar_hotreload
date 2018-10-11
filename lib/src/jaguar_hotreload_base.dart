@@ -138,7 +138,8 @@ class HotReloader {
   /// https://www.dartlang.org/dart-vm/tools/dart-vm
   static bool get isHotReloadable =>
       Platform.executableArguments.contains('--observe') ||
-      Platform.executableArguments.contains('--enable-vm-service');
+      Platform.executableArguments
+          .any((arg) => arg.startsWith('--enable-vm-service'));
 
   /// Go! Start listening for changes to files in registered paths
   ///
