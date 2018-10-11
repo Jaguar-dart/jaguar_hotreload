@@ -157,8 +157,9 @@ class HotReloader {
 
     for (final path in _registeredPaths) {
       final resolvedPath = await _resolvePath(path);
-      if (resolvedPath != null)
+      if (resolvedPath != null) {
         hps[path] = HotReloaderPath._(this, resolvedPath);
+      }
     }
 
     _builtPaths
@@ -329,8 +330,9 @@ More information can be found at: https://www.dartlang.org/dart-vm/tools/dart-vm
       } else if (stat.type == FileSystemEntityType.directory) {
         final dir = Directory(path);
         if (!await dir.exists()) return null;
-      } else
+      } else {
         return null;
+      }
       return path;
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
