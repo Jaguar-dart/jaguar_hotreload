@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
++ Dart 2 compatibility
+
 ## 0.2.3
 
 - Added `addPackageDependencies` to register all dependent packages

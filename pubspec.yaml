@@ -1,6 +1,6 @@
 name: jaguar_hotreload
-description: Hot reloader for Dart
-version: 0.3.0
+description: Hot reloader for Dart. Reloads your application whenever a file system change is detected in the source files or registered files.
+version: 2.0.2
 authors:
 - Ravi Teja Gudapati <tejainece@gmail.com>
 - Kevin Segaud <segaud.kevin@gmail.com>
