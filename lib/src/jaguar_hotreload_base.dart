@@ -5,8 +5,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:glob/glob.dart';
-import 'package:vm_service_lib/vm_service_lib_io.dart' show vmServiceConnectUri;
-import 'package:vm_service_lib/vm_service_lib.dart' show VmService;
+import 'package:vm_service/vm_service_io.dart' show vmServiceConnectUri;
+import 'package:vm_service/vm_service.dart' show VmService;
 import 'package:watcher/watcher.dart';
 
 const String _kVmServiceUrl = 'ws://localhost:8181/ws';

@@ -12,7 +12,7 @@ environment:
   sdk: '>=2.0.0 <3.0.0'
 
 dependencies:
-  vm_service_lib: ^0.3.5
+  vm_service: ^2.1.1
   watcher: ^0.9.7
   glob: ^1.1.3
 
