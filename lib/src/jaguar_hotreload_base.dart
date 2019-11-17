@@ -2,14 +2,13 @@
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:developer' as dev;
 import 'dart:io';
 import 'dart:isolate';
 import 'package:glob/glob.dart';
 import 'package:vm_service/vm_service_io.dart' show vmServiceConnectUri;
 import 'package:vm_service/vm_service.dart' show VmService;
 import 'package:watcher/watcher.dart';
-
-const String _kVmServiceUrl = 'ws://localhost:8181/ws';
 
 /// Encapsulates Hot reloader path
 class HotReloaderPath {
@@ -67,7 +66,7 @@ class HotReloader {
   ///
   /// More information can be found at:
   /// https://www.dartlang.org/dart-vm/tools/dart-vm
-  final String vmServiceUrl;
+  final FutureOr<String> vmServiceUrl;
 
   /// Debounce interval for [onChange] event
   final Duration debounceInterval;
@@ -107,10 +106,11 @@ class HotReloader {
 
   /// Creates a [HotReloader] with given [vmServiceUrl]
   ///
-  /// By default, [vmServiceUrl] uses `ws://localhost:8181/ws`
+  /// By default, [vmServiceUrl] will be auto-detected locally.
   HotReloader(
-      {this.vmServiceUrl = _kVmServiceUrl,
-      this.debounceInterval = const Duration(seconds: 1)}) {
+      {FutureOr<String> vmServiceUrl,
+      this.debounceInterval = const Duration(seconds: 1)})
+      : this.vmServiceUrl = vmServiceUrl ?? _detectServiceUrl() {
     if (!isHotReloadable) throw notHotReloadable;
 
     _onChangeSub = onChange
@@ -347,7 +347,7 @@ More information can be found at: https://www.dartlang.org/dart-vm/tools/dart-vm
     print('Reloading the application...');
 
     // Get vm service
-    _client ??= await vmServiceConnectUri(vmServiceUrl);
+    _client ??= await vmServiceConnectUri(await vmServiceUrl);
 
     // Find main isolate id to reload it
     final vm = await _client.getVM();
@@ -396,4 +396,19 @@ class _FoldedDebounce
       sink.add(tempValues);
     });
   }
+}
+
+Future<String> _detectServiceUrl() async {
+  var info = await dev.Service.getInfo();
+  var uri = info.serverUri;
+
+  uri = uri.replace(path: (uri.path.endsWith('/') ? uri.path : uri.path + '/') + 'ws');
+
+  if (uri.scheme == 'https') {
+    uri = uri.replace(scheme: 'wss');
+  } else {
+    uri = uri.replace(scheme: 'ws');
+  }
+
+  return uri.toString();
 }
